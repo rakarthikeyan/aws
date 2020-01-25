@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template to create a EC2 Instance, a EIP, a SG and assign to the EC2 instance
+Resources:
+  DevServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-09d069a04349dc3cb
+      InstanceType: t2.micro
+      KeyName: cfn-key-1
+      SecurityGroups:
+        - default
+        - !Ref MynewSG
+  MyEIP:
+    Type: AWS::EC2::EIP
+    Properties: 
+      InstanceId: !Ref DevServer
+  MynewSG:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "MySuper SG created by CF Template"
+      GroupName: "MySuper SG"
+      SecurityGroupIngress:
+          CidrIp: 0.0.0.0/0
+          Description: "Allow Port 80"
+          FromPort: 80
+          IpProtocol: "tcp"
+          ToPort: 80

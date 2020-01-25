@@ -1,0 +1,27 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: Template to create a EC2 Instance - based on region, AMI image selected
+
+Mappings:
+  ImageBasedOnRegion:
+    us-east-1:
+      img: ami-09d069a04349dc3cb
+    us-east-2:
+      img: ami-02ccb28830b645a41
+    us-west-1:
+      img: ami-03caa3f860895f82e
+    us-west-2:
+      img: ami-04590e7389a6e577c
+  
+Resources:
+  DevServer:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !FindInMap
+        - ImageBasedOnRegion
+        - !Ref 'AWS::Region'
+        - img
+      InstanceType: t2.micro
+
+      SecurityGroups:
+        - default
+

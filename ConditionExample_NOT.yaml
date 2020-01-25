@@ -1,0 +1,60 @@
+
+Parameters:
+  EnvSelection:
+    Description: Select the Environment from the list
+    Type: String
+    AllowedValues:
+      - dev
+      - prod
+      - qa
+
+Mappings:
+  InstanceTypeMap:
+    dev:
+      itype: t2.micro
+    prod:
+      itype: t2.small
+    qa:
+      itype: t2.medium
+
+Conditions:
+  
+  ProdSGCondition: !Equals [ !Ref EnvSelection, prod]
+  DevSGCondition: !Not [{Condition: ProdSGCondition}]
+
+Resources:
+  MyVMInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-09d069a04349dc3cb
+      InstanceType: !FindInMap
+        - InstanceTypeMap
+        - !Ref EnvSelection
+        - itype
+      SecurityGroups: !If [ DevSGCondition, [!Ref CreateDevSG], [!Ref CreateProdSG]]
+  
+  CreateDevSG:
+    Type: AWS::EC2::SecurityGroup
+    Condition: DevSGCondition
+    Properties:
+      GroupDescription: "MySuper DEV SG created by CF Template"
+      GroupName: "MySuper DEV SG"
+      SecurityGroupIngress:
+          CidrIp: 0.0.0.0/0
+          Description: "Allow Port 80"
+          FromPort: 80
+          IpProtocol: "tcp"
+          ToPort: 80
+
+  CreateProdSG:
+    Type: AWS::EC2::SecurityGroup
+    Condition: ProdSGCondition
+    Properties:
+      GroupDescription: "MySuper Prod SG created by CF Template"
+      GroupName: "MySuper Prod SG"
+      SecurityGroupIngress:
+          CidrIp: 0.0.0.0/0
+          Description: "Allow Port 80"
+          FromPort: 80
+          IpProtocol: "tcp"
+          ToPort: 80        
